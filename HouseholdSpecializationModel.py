@@ -130,12 +130,12 @@ class HouseholdSpecializationModelClass:
         bounds = [(0,24)]*4 
 
         # call optimizer
-        initial_guess = [2]*4
-        result = optimize.minimize(
+        initial_guess = [4]*4
+        res = optimize.minimize(
             lambda x: -self.calc_utility(x[0],x[1],x[2],x[3]), initial_guess,
             method='SLSQP', bounds=bounds, constraints=constraints)
         
-        return result.x   
+        return res.x   
 
     def solve_wF_vec(self,discrete=False):
         """ solve model for vector of female wages """
@@ -169,6 +169,11 @@ class HouseholdSpecializationModelClass:
         y = np.log(sol.HF_vec/sol.HM_vec)
         A = np.vstack([np.ones(x.size),x]).T
         sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
+        #plt.plot(x,y, 'o', label='Original data', markersize=8)
+        #plt.plot(x, sol.beta0 + sol.beta1*x, 'r', label='Fitted line')
+        #plt.legend()
+        #plt.show()
+
 
     
     def estimate(self,alpha=None,sigma=None,do_print=True):
@@ -176,7 +181,7 @@ class HouseholdSpecializationModelClass:
         par = self.par 
         sol = self.sol
         obj = lambda x: self.est(x)
-        result = optimize.minimize(obj, x0 = [0.1,0.1], method = 'Nelder-Mead', bounds = [(0,10)]*2)
+        result = optimize.minimize(obj, x0 = [0.5,0.1], method = 'Nelder-Mead', bounds = [(0.01,0.99)]*2)
 
         return result.x
     
