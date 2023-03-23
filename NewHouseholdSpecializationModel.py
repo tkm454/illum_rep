@@ -7,7 +7,7 @@ from scipy import linalg
 import pandas as pd 
 import matplotlib.pyplot as plt
 
-class HouseholdSpecializationModelClass:
+class NewHouseholdSpecializationModelClass:
 
     def __init__(self):
         """ setup model """
@@ -19,6 +19,7 @@ class HouseholdSpecializationModelClass:
         # b. preferences
         par.rho = 2.0
         par.nu = 0.001
+        par.eta = 0.002
         par.epsilon = 1.0
         par.omega = 0.5 
 
@@ -72,7 +73,7 @@ class HouseholdSpecializationModelClass:
         epsilon_ = 1+1/par.epsilon
         TM = LM+HM
         TF = LF+HF
-        disutility = par.nu*(TM**epsilon_/epsilon_+TF**epsilon_/epsilon_)
+        disutility = par.nu*(TM**epsilon_/epsilon_)+par.eta*(TF**epsilon_/epsilon_)
         
         return utility - disutility
 
@@ -167,9 +168,8 @@ class HouseholdSpecializationModelClass:
         sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
 
 
-    
-    def estimate(self,alpha=None,sigma=None,do_print=True):
-        """ estimate alpha and sigma """
+    def estimate(self,epsilon=None,sigma=None,do_print=True):
+        """ estimate epsilon and sigma """
         par = self.par 
         sol = self.sol
         obj = lambda x: self.est(x)
@@ -178,11 +178,11 @@ class HouseholdSpecializationModelClass:
         return result.x
     
     def est(self, x):
-        """ help funciton in estimating alpha and sigma """
+        """ help function in estimating epsilon and sigma """
         par = self.par
         sol = self.sol
 
-        par.alpha = x[0]
+        par.epsilon = x[0]
         par.sigma = x[1]
         self.solve_wF_vec()
         self.run_regression()
